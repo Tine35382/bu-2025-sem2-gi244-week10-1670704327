@@ -21,8 +21,6 @@ public class PlayerController : MonoBehaviour
 
     public bool gameOver = false;
 
-    []
-
     public bool isDash = false;
 
     void Awake()
