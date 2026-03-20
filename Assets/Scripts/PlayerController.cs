@@ -3,6 +3,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+
+
     public float jumpForce;
     public float gravityModifier;
     public ParticleSystem explosionParticle;
@@ -21,7 +23,10 @@ public class PlayerController : MonoBehaviour
 
     public bool gameOver = false;
 
-    []
+    [Header("HP system")]
+    [SerializeField] private int maxHP = 5;
+    [SerializeField] private int currentHP;
+    [SerializeField] private GameObject collisionParticlePrefab;
 
     public bool isDash = false;
 
@@ -35,6 +40,7 @@ public class PlayerController : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        currentHP = maxHP;
         Physics.gravity *= gravityModifier;
 
         jumpAction = InputSystem.actions.FindAction("Jump");
@@ -89,13 +95,33 @@ public class PlayerController : MonoBehaviour
         }
         else if (collision.gameObject.CompareTag("Obstacle"))
         {
-            Debug.Log("Game Over!");
+            if (collisionParticlePrefab != null)
+            {
+                GameObject particleInstance = Instantiate(collisionParticlePrefab, collision.contacts[0].point, Quaternion.identity);
+                Destroy(particleInstance , 2f);
+            }
+
+            Destroy(collision.gameObject);
+
+            currentHP--;
+
+            if (currentHP <= 0)
+            {
+                gameOver = true;
+                playerAnim.SetBool("Death_b" , true);
+                playerAnim.SetInteger("DeathType_int", 1);
+                explosionParticle.Play();
+                dirtParticle.Stop();
+                playerAudio.PlayOneShot(crashSfx);
+            }
+
+           /*Debug.Log("Game Over!");
             gameOver = true;
             playerAnim.SetBool("Death_b", true);
             playerAnim.SetInteger("DeathType_int", 1);
             explosionParticle.Play();
             dirtParticle.Stop();
-            playerAudio.PlayOneShot(crashSfx);
+            playerAudio.PlayOneShot(crashSfx);*/
         }
     }
 
